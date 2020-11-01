@@ -46,7 +46,6 @@ def pandas_config():
 
 if __name__ == '__main__':
 
-    # Code to test getting the last n games, in this case, the last 4 games
     os.chdir(OUTPUT_PATH)
     pandas_config()
     player_df = pd.read_csv('Player_fixture_df.csv')
