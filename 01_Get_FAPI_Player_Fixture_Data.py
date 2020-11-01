@@ -24,7 +24,7 @@ def connect_to_api():
     """ Connect to the rapid football api """
     headers = {
         'x-rapidapi-host': "api-football-v1.p.rapidapi.com",
-        'x-rapidapi-key': "5759a8f463mshc61ad720c308949p1a3d99jsne932e0026d6b"
+        'x-rapidapi-key': ""
     }
     return headers
 
