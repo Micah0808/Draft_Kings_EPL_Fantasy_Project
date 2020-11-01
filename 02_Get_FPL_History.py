@@ -3,9 +3,13 @@
 
 """
 
-Fetching FPL player data for optimisation
+Fetching FPL player data from the official EPL api
 
 """
+
+__author__ = 'Micah Cearns'
+__contact__ = 'micahcearns@gmail.com'
+__date__ = 'August 2020'
 
 import json
 import os
@@ -13,17 +17,25 @@ import time
 import warnings
 import pandas as pd
 import progressbar
-import tqdm
+from tqdm import tqdm
 import requests
 
-# from common import DATA_DIR
 
 OUTPUT_PATH = '/Users/MicahJackson/Desktop/fpl-optimiser-master/Output'
 DK_OUTPUT_PATH = ('/Users/MicahJackson/anaconda/Pycharm_WD/Draft_Kings_EPL_'
                   'Project/Output')
 
 def fetch_player_history(player_id):
-    """ Fetch JSON of a single player's FPL history. """
+    """
+
+    Fetch JSON of a single player's FPL history
+
+    :param player_id: Individual Player ids as integers
+
+    :return player_history: Dictionary of a players history within the EPL and
+                            all subsequent official EPL fantasy metrics
+
+    """
     url = ('https://fantasy.premierleague.com/api/element-summary/{}/'
            .format(player_id))
     r = requests.get(url)
@@ -31,10 +43,18 @@ def fetch_player_history(player_id):
 
 
 def fetch_all_player_histories(max_id=1000):
-    """ Fetch the histories of all players. """
+    """
+
+    Fetch the histories of all EPL players
+
+    :param max_id: Integer ids to iterate through for EPL players
+
+    :return histories: Dictionaries of individual EPL player data for all
+                       their seasons in the EPL
+    """
     histories = []
     bar = progressbar.ProgressBar()
-    for player_id in bar(range(1, max_id+1)):
+    for player_id in tqdm(range(1, max_id+1), desc='Get player histories'):
         try:
             history = fetch_player_history(player_id)
             histories += history
@@ -43,7 +63,7 @@ def fetch_all_player_histories(max_id=1000):
             return histories
         except KeyError:  # Catching key errors for players missing data
             pass
-        time.sleep(0.5)  # Don't overload their servers
+        time.sleep(0.5)  # To avoid overloading their servers
     else:
         warnings.warn('Last player_id not reached. You ought to try again '
                       'with a higher max_id')
@@ -62,11 +82,6 @@ def fetch_player_info():
     """ Fetch player info for the most recent season. """
     url = 'https://fantasy.premierleague.com/api/bootstrap-static/'
     r = requests.get(url)
-
-    # It looks like this is where I can pull the form data and the other columns
-    # that I can see on the FPL website. I need to print out the list of
-    # elements, find what I want, and then append them to into the positions
-    # list
 
     positions = []
     for player in r.json()['elements']:
@@ -87,7 +102,7 @@ def fetch_player_info():
 
 
 def fetch_and_save_history(max_id=1000):
-    """ Fetch and save all historical seasons. """
+    """ Fetch and save all historical seasons """
     scores = pd.DataFrame(fetch_all_player_histories(max_id))
     players = pd.DataFrame(fetch_player_info())
     positions = pd.DataFrame(fetch_positions())
@@ -104,16 +119,6 @@ def fetch_and_save_history(max_id=1000):
                             how='outer',
                             left_on='position_id',
                             right_on='id')
-    #
-    # # Getting a csv of all columns
-    # ((pd.Series(history
-    #             .columns
-    #             .tolist(), name='Columns')
-    #   .to_csv(os.path.join(OUTPUT_PATH,
-    #                        'FPL_Columns_Names.csv'))))
-    #
-    # # Getting a csv of all columns
-    # (players.to_csv(os.path.join(OUTPUT_PATH, 'Fetch_Player_Info_Raw.csv')))
 
     columns = ['player_id',
                'full_name',

@@ -1,3 +1,16 @@
+#!/usr/bin/env python
+# _*_ coding: utf-8 _*_
+
+"""
+
+Fetching player and fixture data from the football api
+
+"""
+
+__author__ = 'Micah Cearns'
+__contact__ = 'micahcearns@gmail.com'
+__date__ = 'August 2020'
+
 import requests
 import pandas as pd
 import os
@@ -21,11 +34,15 @@ def get_league_id(headers,
                   country='England',
                   year=2020):
     """
+
     Get league id to identify fixtures and players
-    :param league:
-    :param country:
-    :param year:
-    :return:
+
+    :param headers: API headers
+    :param league: Global football league
+    :param country: Country of league
+    :param year: Year of league season
+
+    :return league_id: Integer value representing the league id
     """
     league_url = 'https://api-football-v1.p.rapidapi.com/v2/leagues'
     response_league = requests.request("GET", league_url, headers=headers)
@@ -43,9 +60,12 @@ def get_league_id(headers,
 def get_fixture_ids(league_id, headers):
     """
 
-    :param league_id:
-    :param headers:
-    :return:
+    Get fixture ids for fixtures within a league and season
+
+    :param league_id: League id value as an integer
+    :param headers: API headers
+
+    :return fixture_ids: Integer ids for each fixture within season
     """
     epl_url = ('https://api-football-v1.p.rapidapi.com/v2/fixtures/league/'
                + league_id.astype(str))
@@ -58,10 +78,14 @@ def get_fixture_ids(league_id, headers):
 
 def get_player_data(fixture_ids, headers):
     """
-    Get player data by fixture
-    :param fixture_ids:
-    :param headers:
-    :return:
+
+    Get individual player data by fixture within league season
+
+    :param fixture_ids: Integer fixture ids value for fixtures in season
+    :param headers: API headers
+
+    :return player_fixture_df: Pandas dataframe of individual players and
+                               their metrics per game within a league season
     """
     url = "https://api-football-v1.p.rapidapi.com/v2/players/fixture/"
     player_list = []
@@ -84,7 +108,7 @@ def get_player_data(fixture_ids, headers):
 
 
 if __name__ == '__main__':
-    headers = connect_to_api()  # League id is 524
+    headers = connect_to_api()  # EPL league id is 524
     league_id = get_league_id(headers, 'Premier League', 'England', 2020)
     fixture_ids = get_fixture_ids(league_id, headers)
     player_df = get_player_data(fixture_ids, headers)
